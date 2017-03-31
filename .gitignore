@@ -1,6 +1,8 @@
+
+
 composer.lock
 .DS_Store
 vendor/
-
+logs/
 
 
