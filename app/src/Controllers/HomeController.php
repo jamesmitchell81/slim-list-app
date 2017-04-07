@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Controller;
+namespace App\Controllers;
 
 use Slim\Views\PhpRenderer as View;
 use Psr\Log\LoggerInterface;
@@ -16,11 +16,9 @@ class HomeController
 		$this->logger = $logger;
 	}
 
-	public function dispatch($request, $response, $args)
+	public function home($request, $response, $args)
 	{
-		$this->logger->info("Home Controller Dispatched");
-
+		$this->logger->info("Home Page Dispatched");
 		return $this->view->render($response, 'home.phtml', $args);
 	}
-
 }

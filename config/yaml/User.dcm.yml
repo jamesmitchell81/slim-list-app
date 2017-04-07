@@ -1,0 +1,41 @@
+User:
+  type: entity
+  # repositoryClass: App\Repository\UserRepository
+  table: app_users
+  id:
+    id:
+      type: integer
+      generator:
+        strategy: AUTO
+  fields:
+    username:
+      type: string
+      length: 50
+      nullable: true # should be false.
+    emailAddress:
+      columnName: email_address
+      type: string
+      length: 255
+      nullable: false
+      unique: true
+    password:
+      type: string
+      length: 50
+      nullable: false # should be false.
+    created:
+      type: timestamp
+      nullable: false
+    updated:
+      type: timestamp
+      nullable: true
+  oneToMany:
+    lists:
+      targetEntity: List
+      mappedBy: user
+  actAs:
+    Timestampable:
+      created:
+        name: created
+      updated:
+        name: updated
+

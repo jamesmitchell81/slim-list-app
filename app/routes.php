@@ -9,4 +9,5 @@
 // });
 
 
-$app->get('/', 'App\Controller\HomeController:dispatch');
+$app->get('/', 'App\Controllers\HomeController:home');
+$app->get('/lists', 'App\Controllers\ListController:display');

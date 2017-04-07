@@ -14,6 +14,10 @@ require __DIR__.'/../vendor/autoload.php';
 
 session_start();
 
+// Temp!
+// Do Auth and permissions etc.
+$_SESSION['user_id'] = 1;
+
 $settings = require __DIR__.'/../app/settings.php';
 $app = new Slim\App($settings);
 

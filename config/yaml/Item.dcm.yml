@@ -1,0 +1,40 @@
+Item:
+  type: entity
+  # repositoryClass: App\Repository\ItemRepository
+  table: list_items
+  id:
+    id:
+      type: integer
+      generator:
+        strategy: AUTO
+  fields:
+    value:
+      type: string
+      length: 255
+      nullable: false
+    created:
+      type: timestamp
+      nullable: false
+    updated:
+      type: timestamp
+    complete:
+      type: boolean
+      nullable: false
+      options: { default: false }
+    deleted:
+      type: boolean
+      nullable: false
+      options: { default: false }
+  manyToOne:
+    list:
+      targetEntity: AppList
+      inversedBy: items
+      joinColumn:
+        name: list_id
+        referenceColumnName: id
+  actAs:
+    Timestampable:
+      created:
+        name: created
+      updated:
+        name: updated

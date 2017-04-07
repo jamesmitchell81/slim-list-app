@@ -17,8 +17,43 @@ $container['logger'] = function ($c) {
     return $logger;
 };
 
+// $container['em'] = function($c) {
+// 	$settings = $c->get('settings')['doctrine'];
+// 	$isDev = true;
+// 	$paths = [
+// 		__DIR__.'/../config/yaml'
+// 	];
+// 	$connection = $settings['database'];
+// 	$config = Doctrine\ORM\Tools\Setup::createYAMLMetadataConfiguration(
+// 			$paths,
+// 			$isDev
+// 		);
+// 	return Doctrine\ORM\EntityManager::create($connection, $config);
+// };
+
+$container['database'] = function($cont)
+{
+	$settings = $c->get('settings')['database'];
+	return App\Persistence\PdoDatabase(
+			$settings['host'],
+			$settings['dbname'],
+			$settings['user'],
+			$settings['password']
+		);
+};
 
 /* Controller/Action Factory. */
-$container['App\Controller\HomeController'] = function($cont) {
-	return new App\Controller\HomeController($cont->get('renderer'), $cont->get ('logger'));
+$container['App\Controllers\HomeController'] = function($cont) {
+	return new App\Controllers\HomeController(
+			$cont->get('renderer'),
+			$cont->get('logger')
+		);
+};
+
+$container['App\Controllers\ListController'] = function($cont) {
+	return new App\Controllers\ListController(
+			$cont->get('renderer'),
+			$cont->get('logger'),
+			$cont->get('em')
+		);
 };

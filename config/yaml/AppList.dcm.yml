@@ -1,0 +1,41 @@
+AppList:
+  type: entity
+  # repositoryClass: App\Repository\ListRepository
+  table: lists
+  id:
+    id:
+      type: integer
+      generator:
+        strategy: AUTO
+  fields:
+    listName:
+      columnName: list_name
+      type: string
+      length: 50
+      nullable: false
+    created:
+      type: datetimetz
+      nullable: false
+    updated:
+      type: datetimetz
+      nullable: false
+    complete:
+      type: boolean
+      options: { default: false }
+  manyToOne:
+    user:
+      targetEntity: User
+      inversedBy: lists
+      joinColumn:
+        name: user_id
+        referenceColumnName: id
+  oneToMany:
+    item:
+      targetEntity: Item
+      mappedBy: list
+  actAs:
+    Timestampable:
+      created:
+        name: created
+      updated:
+        name: updated
