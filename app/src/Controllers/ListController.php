@@ -4,19 +4,21 @@ namespace App\Controllers;
 
 use Slim\Views\PhpRenderer as View;
 use Psr\Log\LoggerInterface;
-use Doctrine\ORM\EntityManager;
+
+use App\Persistence\Storage;
+use App\Repository\ListRepository;
 
 class ListController
 {
 	private $view;
 	private $logger;
-	private $em;
+	private $store;
 
-	public function __construct(View $view, LoggerInterface $logger, EntityManager $em)
+	public function __construct(View $view, LoggerInterface $logger, Storage $store)
 	{
 		$this->view = $view;
 		$this->logger = $logger;
-		$this->em = $em;
+		$this->store = $store;
 	}
 
 	public function display($request, $response, $args)
@@ -29,12 +31,10 @@ class ListController
 		$args['user_id'] = $user_id;
 
 		// get user lists.
-		$repository = $this->em->getRepository('App\Entity\AppList');
-		$lists = $repository->findBy(
-				['user_id' => $user_id ]
-			);
+		$repository = new ListRepository($this->store);
+
+
 		// get template.
-		var_dump($lists);
 
 		// return response.
 		return $this->view->render($response, 'lists.phtml', $args);

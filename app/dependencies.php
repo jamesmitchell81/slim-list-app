@@ -31,15 +31,21 @@ $container['logger'] = function ($c) {
 // 	return Doctrine\ORM\EntityManager::create($connection, $config);
 // };
 
-$container['database'] = function($cont)
-{
-	$settings = $c->get('settings')['database'];
-	return App\Persistence\PdoDatabase(
+$container['database'] = function($cont) {
+	$settings = $cont->get('settings')['database'];
+	return new App\Persistence\PdoDatabase(
+			$settings['driver'],
 			$settings['host'],
+			$settings['port'],
 			$settings['dbname'],
 			$settings['user'],
 			$settings['password']
 		);
+};
+
+$container['storage'] = function($cont) {
+	$database = $cont->get('database');
+	return new App\Persistence\DatabaseStorage($database);
 };
 
 /* Controller/Action Factory. */
@@ -54,6 +60,6 @@ $container['App\Controllers\ListController'] = function($cont) {
 	return new App\Controllers\ListController(
 			$cont->get('renderer'),
 			$cont->get('logger'),
-			$cont->get('em')
+			$cont->get('storage')
 		);
 };
