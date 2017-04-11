@@ -1,0 +1,66 @@
+/* Reset */
+html, body, div, article, header, nav, ul, ol, li, a, form,
+legend, input, label, p, img, textarea,
+h1, h2, h3, h4, h5, h6, header {
+  margin: 0; padding: 0;
+  list-style: none;
+}
+
+html {
+  box-sizing: border-box;
+}
+
+*, *:before, *:after {
+  box-sizing: inherit;
+}
+
+table {
+  border-collapse: collapse;
+}
+
+html, body {
+	background: #fff;
+	font-family: sans-serif;
+}
+
+.container {
+	max-width: 44em;
+	margin: 0 auto;
+}
+
+.list-element {
+	margin: 0.5em;
+	display: flex;
+	justify-content: space-between;
+	box-shadow: 1px 1px 4px #88a;
+	border-radius: 2px;
+}
+
+.list-details {
+	padding: 0.5em;
+	display: flex;
+	flex-direction: column;
+	flex-grow: 1;
+}
+
+.list-name {
+	line-height: 1.5;
+	width: 100%;
+}
+
+.list-created, .list-updated {
+	font-size: 0.8em;
+	font-style: italic;
+	color: #989898;
+}
+
+.view-list-btn {
+	width: 4.5em;
+	line-height: 4;
+	text-align: center;
+}
+
+.btn-right {
+	border-left: 1px solid #ccf;
+}
+
