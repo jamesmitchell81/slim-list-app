@@ -84,12 +84,66 @@ function drop_tables()
 
 function fake()
 {
+	$faker = Faker\Factory::create();
+	$connection = db()->connection();
 	// 10 users
+	$SQL = "INSERT INTO app_users (username, email_address, password) VALUES (:username, :email_address, :password)";
+	$statement = $connection->prepare($SQL);
+	for ( $i = 0; $i < 10; $i++ )
+	{
+		$user = $faker->userName;
+		$email = $faker->safeEmail;
+		$password = $faker->password;
+		$statement->bindParam(':username', $user, PDO::PARAM_STR);
+		$statement->bindParam(':email_address', $email, PDO::PARAM_STR);
+		$statement->bindParam(':password', $password, PDO::PARAM_STR);
+		$statement->execute();
+	}
+
+	// Get user ids.
+	$SQL = "SELECT id FROM app_users";
+	$statement = $connection->prepare($SQL);
+	$statement->execute();
+	$users = $statement->fetchAll(PDO::FETCH_ASSOC);
 
 	// each with 10 lists
+	$SQL = "INSERT INTO app_lists (list_name, description, user_id) VALUES (:list_name, :description, :user_id)";
+	$statement = $connection->prepare($SQL);
+	foreach ( $users as $user )
+	{
+		for ($i = 0; $i < 10; $i++ )
+		{
+			$name = $faker->text(30);
+			$description = $faker->text(200);
+			$statement->bindParam(':list_name', $name, PDO::PARAM_STR);
+			$statement->bindParam(':description', $description, PDO::PARAM_STR);
+			$statement->bindParam(':user_id', $user['id'], PDO::PARAM_INT);
+			$statement->execute();
+		}
+	}
+
+	// get the list ids.
+	$SQL = "SELECT id FROM app_lists";
+	$statement = $connection->prepare($SQL);
+	$statement->execute();
+	$lists = $statement->fetchAll(PDO::FETCH_ASSOC);
 
 	// each with 10 items.
+	$SQL = "INSERT INTO app_list_items (value, list_id) VALUES (:value, :list_id)";
+	$statement = $connection->prepare($SQL);
+	foreach ( $lists as $list )
+	{
+		for ( $i = 0; $i < 10; $i++ )
+		{
+			$val = $faker->text(50);
+			$statement->bindParam(':value', $val, PDO::PARAM_STR);
+			$statement->bindParam(':list_id', $list['id'], PDO::PARAM_INT);
+			$statement->execute();
+		}
+	}
+	echo gettype($faker->text(30));
 }
+
 
 if ( $argv[1] == "--create")
 {
@@ -99,7 +153,7 @@ else if ( $argv[1] == "--drop" )
 {
 	drop_tables();
 }
-else is ( $argv[1] == "--fake" )
+else if ( $argv[1] == "--fake" )
 {
 	fake();
 }
