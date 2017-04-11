@@ -1,3 +1,22 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<link rel="stylesheet" href="/css/main.css">
+</head>
+<body>
 
+	<div class="container">
+		<?php foreach( $lists as $list ): ?>
+			<div class="list-element">
+				<span class="list-details">
+					<span class="list-name"><?= $list['list_name'] ?></span>
+					<span class="list-created">Created: <?= $list['created'] ?></span>
+					<span class="list-updated">Updated: <?= $list['updated'] ?></span>
+				</span>
+				<a href="/list/<?= $list['id'] ?>" class="btn btn-right view-list-btn">View</a>
+			</div>
+		<?php endforeach; ?>
+	</div>
 
-These are the lists for <?= $user_id; ?>.
+</body>
+</html>
