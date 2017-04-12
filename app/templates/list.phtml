@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<link rel="stylesheet" href="/css/main.css">
+</head>
+<body>
+
+	<div class="container">
+		<div class="list-header">
+			<h3><?= $items[0]['list_name']; ?></h3>
+			<p><?= $items[0]['description']; ?></p>
+		</div>
+
+		<form action="/list/<?= $items[0]['list_id']; ?>/add-item" method="POST">
+			<!-- CSRF field -->
+			<input type="text" class="list-input">
+		</form>
+
+		<?php foreach($items as $item): ?>
+		<div class="list-element">
+			<a href="/item/<?= $item['id']; ?>/complete" class="btn btn-left item-check-btn">C</a>
+			<span class="list-details">
+				<span class="list-name"><?= $item['value']; ?></span>
+				<span class="list-created">Created: <?= $item['created']; ?></span>
+				<span class="list-updated">Updated: <?= $item['updated']; ?></span>
+			</span>
+			<a href="/item/<?= $item['id']; ?>/edit" class="btn btn-right item-check-btn">Edit</a>
+		</div>
+		<?php endforeach; ?>
+	</div>
+
+</body>
+</html>
