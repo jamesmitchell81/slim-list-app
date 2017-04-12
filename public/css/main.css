@@ -28,6 +28,22 @@ html, body {
 	margin: 0 auto;
 }
 
+.list-header {
+	margin: 0.5em;
+}
+
+.list-header h3 {
+	text-align: center;
+	line-height: 2;
+}
+
+.list-input {
+	margin: 0.5em;
+	padding: 0.5em;
+	width: 100%;
+	line-height: 1.5;
+}
+
 .list-element {
 	margin: 0.5em;
 	display: flex;
@@ -54,9 +70,10 @@ html, body {
 	color: #989898;
 }
 
-.view-list-btn {
-	width: 4.5em;
-	line-height: 4;
+.view-list-btn,  .item-check-btn {
+	width: 5em;
+	/*line-height: 4;*/
+	padding-top: 1.5em;
 	text-align: center;
 }
 
