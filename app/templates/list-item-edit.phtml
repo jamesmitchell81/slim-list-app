@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<link rel="stylesheet" href="/css/main.css">
+</head>
+<body>
+
+	<div class="container">
+
+		<!-- list details -->
+		<div class="list-header">
+			<h3>
+				<a href="/list/<?= $item['list_id']; ?>">&lt;&dash;</a>
+				<?= $item['list_name']; ?>
+			</h3>
+			<p><?= $item['description']; ?></p>
+		</div>
+
+		<form action="/item/<?= $item['id']; ?>/edit" method="POST">
+			<!-- csrf field -->
+			<input type="text" value="<?= $item['value']; ?>" name="item_value" id="item_value" class="list-input">
+		</form>
+		<a class="list-element list-element-action" href="/item/<?= $item['id']; ?>/delete">delete</a>
+		<a class="list-element list-element-action" href="/item/<?= $item['id']; ?>/complete">complete</a>
+	</div>
+
+</body>
+</html>
