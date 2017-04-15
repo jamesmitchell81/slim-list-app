@@ -31,6 +31,7 @@ class ListItemController
 				FROM app_list_items AS i
 				INNER JOIN app_lists AS l ON i.list_id = l.id
 				WHERE l.user_id = :user_id AND i.list_id = :list_id
+				AND i.deleted = false
 				ORDER BY i.created DESC";
 
 		$connection = $this->db->connection();
@@ -59,7 +60,6 @@ class ListItemController
 		$statement->bindParam(':user_id', $user_id, PDO::PARAM_INT);
 		$statement->bindParam(':item_id', $item_id, PDO::PARAM_INT);
 		$statement->execute();
-
 		$args['item'] = $statement->fetch(PDO::FETCH_ASSOC);
 
 		return $this->view->render($response, 'list-item-edit.phtml', $args);
@@ -78,9 +78,51 @@ class ListItemController
 		$statement->bindParam(':item_id', $item_id, PDO::PARAM_INT);
 		$statement->execute();
 
+		// get the list id in order to return after edit.
 		$SQL = "SELECT list_id FROM app_list_items WHERE id = :item_id";
 		$statement = $connection->prepare($SQL);
 		$statement->bindParam(':item_id', $item_id, PDO::PARAM_INT);
+		$statement->execute();
+		$list = $statement->fetch(PDO::FETCH_ASSOC);
+
+		return $response->withRedirect('/list/' . $list['list_id']);
+	}
+
+	// Soft Delete.
+	public function delete($request, $response, $args)
+	{
+		$item_id = $args['item_id'];
+
+		// $SQL = "DELETE FROM app_list_items WHERE id = :list_id";
+		$SQL = "UPDATE app_list_items SET deleted = true WHERE id = :item_id";
+		$connection = $this->db->connection();
+		$statement = $connection->prepare($SQL);
+		$statement->bindParam(':item_id', $item_id, PDO::PARAM_INT);
+		$statement->execute();
+
+		// get the list id in order to return after edit.
+		$SQL = "SELECT list_id FROM app_list_items WHERE id = :item_id";
+		$statement = $connection->prepare($SQL);
+		$statement->bindParam(':item_id', $item_id, PDO::PARAM_INT);
+		$statement->execute();
+		$list = $statement->fetch(PDO::FETCH_ASSOC);
+
+		return $response->withRedirect('/list/' . $list['list_id']);
+	}
+
+	public function complete($request, $response, $args)
+	{
+		$item_id = $args['item_id'];
+
+		$SQL = "UPDATE app_list_items SET complete = true WHERE id = :item_id";
+		$connection = $this->db->connection();
+		$statement = $connection->prepare($SQL);
+		$statement->bindParam(':item_id', $item_id, PDO::PARAM_INT);
+		$statement->execute();
+
+		$SQL = "SELECT list_id FROM app_list_items WHERE id = :item_id";
+		$statement = $connection->prepare($SQL);
+		$statement->bindParam(':item_id', $item_id, PDO::FETCH_ASSOC);
 		$statement->execute();
 		$list = $statement->fetch(PDO::FETCH_ASSOC);
 
