@@ -7,11 +7,14 @@
 
 	<div class="container">
 		<div class="list-header">
-			<h3><?= $items[0]['list_name']; ?></h3>
+			<h3>
+				<a href="/lists">&lt;&dash;</a>
+				<?= $items[0]['list_name']; ?>
+			</h3>
 			<p><?= $items[0]['description']; ?></p>
 		</div>
 
-		<form action="/list/<?= $items[0]['list_id']; ?>/add-item" method="POST">
+		<form action="/list/<?= $list_id; ?>/add" method="POST">
 			<!-- CSRF field -->
 			<input type="text" class="list-input">
 		</form>

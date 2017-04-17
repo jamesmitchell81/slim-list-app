@@ -6,6 +6,13 @@
 <body>
 
 	<div class="container">
+		<form action="/list/<?= $items[0]['list_id']; ?>/add-item" method="POST">
+			<!-- CSRF field -->
+			<input type="text" class="list-input">
+		</form>
+		<?php if ( count($lists) == 0 ): ?>
+			<span class="empty-lists">There are no lists.</span>
+		<?php endif; ?>
 		<?php foreach( $lists as $list ): ?>
 			<div class="list-element">
 				<span class="list-details">
