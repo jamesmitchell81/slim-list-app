@@ -60,6 +60,14 @@ $container['App\Controllers\ListController'] = function($cont) {
 	return new App\Controllers\ListController(
 			$cont->get('renderer'),
 			$cont->get('logger'),
-			$cont->get('storage')
+			$cont->get('database')
+		);
+};
+
+$container['App\Controllers\ListItemController'] = function($cont) {
+	return new App\Controllers\ListItemController(
+			$cont->get('renderer'),
+			$cont->get('logger'),
+			$cont->get('database')
 		);
 };

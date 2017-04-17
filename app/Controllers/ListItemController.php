@@ -6,6 +6,7 @@ use Slim\Views\PhpRenderer as View;
 use Psr\Log\LoggerInterface;
 
 use App\Persistence\Database;
+use App\Repository\ListRepository;
 use \PDO;
 
 class ListItemController
@@ -44,6 +45,15 @@ class ListItemController
 		return $this->view->render($response, 'list.phtml', $args);
 	}
 
+	public function add($request, $response, $args)
+	{
+		$list_id = $args['list_id'];
+		$repo = new ListRepository($this->db);
+		$list = $repo->find($list_id);
+
+		return $response->withRedirect('/list/' . $list->getId());
+	}
+
 	public function displayEdit($request, $response, $args)
 	{
 		$user_id = $_SESSION['user_id'];
@@ -71,6 +81,10 @@ class ListItemController
 		$item_id = $args['item_id'];
 		$item_value = $body['item_value'];
 
+		$item = (new ListItem)->find($item_id);
+		$item->setValue($item_value);
+		$item->save();
+
 		$SQL = "UPDATE app_list_items SET value = :value WHERE id = :item_id";
 		$connection = $this->db->connection();
 		$statement = $connection->prepare($SQL);
@@ -78,14 +92,8 @@ class ListItemController
 		$statement->bindParam(':item_id', $item_id, PDO::PARAM_INT);
 		$statement->execute();
 
-		// get the list id in order to return after edit.
-		$SQL = "SELECT list_id FROM app_list_items WHERE id = :item_id";
-		$statement = $connection->prepare($SQL);
-		$statement->bindParam(':item_id', $item_id, PDO::PARAM_INT);
-		$statement->execute();
-		$list = $statement->fetch(PDO::FETCH_ASSOC);
 
-		return $response->withRedirect('/list/' . $list['list_id']);
+		return $response->withRedirect('/list/' . $item->getList()->getId());
 	}
 
 	// Soft Delete.
