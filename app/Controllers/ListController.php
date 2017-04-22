@@ -2,11 +2,15 @@
 
 namespace App\Controllers;
 
+use App\Repository\ListRepository;
+use App\Repository\UserRepository;
 use Slim\Views\PhpRenderer as View;
 use Psr\Log\LoggerInterface;
 
 use App\Persistence\Database;
 use \PDO;
+
+use App\Entity\AppList;
 
 class ListController
 {
@@ -24,21 +28,35 @@ class ListController
 
 	public function display($request, $response, $args)
 	{
-		$this->logger->info("User xx displayed lists");
-
 		// TEMP: session get user.
-		$user_id = $_SESSION['user_id'];
+        $user_id = $_SESSION['user_id'];
 
-		// $user = new User($user_id);
-		//
+		$users = new UserRepository($this->db);
+		$user = $users->find($user_id);
 
-		$this->connection = $this->db->connection();
-		$SQL = "SELECT * FROM app_lists WHERE user_id = :user_id";
-		$statement = $this->connection->prepare($SQL);
-		$statement->bindParam(':user_id', $user_id, PDO::PARAM_INT);
-		$statement->execute();
-		$args['lists'] = $statement->fetchAll(PDO::FETCH_ASSOC);
+		$lists = (new ListRepository($this->db))->findByUser($user_id)->all();
+		$user->setLists($lists);
+
+		$args['user'] = $user;
 
 		return $this->view->render($response, 'lists.phtml', $args);
+	}
+
+	// Add an list to a user
+	public function add($request, $response, $args)
+	{
+		$body = $request->getParsedBody();
+
+		$users = new UserRepository($this->db);
+		$user = $users->find($_SESSION['user_id']);
+
+		$list = new AppList();
+		$list->setUser($user);
+		$list->setListName($body['list_name']);
+
+		$lists = new ListRepository($this->db);
+		$list = $lists->add($list);
+
+		return $response->withRedirect('/list/' . $list->getId());
 	}
 }
