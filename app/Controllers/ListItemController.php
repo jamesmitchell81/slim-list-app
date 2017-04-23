@@ -2,16 +2,17 @@
 
 namespace App\Controllers;
 
+use App\Repository\ListItemRepository;
 use Slim\Views\PhpRenderer as View;
 use Psr\Log\LoggerInterface;
 
+use App\Entity\ListItem;
 use App\Persistence\Database;
 use App\Repository\ListRepository;
 use \PDO;
 
 class ListItemController
 {
-
 	private $view;
 	private $logger;
 	private $db;
@@ -23,24 +24,25 @@ class ListItemController
 		$this->db = $db;
 	}
 
-	public function display($request, $response, $args)
+
+    public function display($request, $response, $args)
 	{
+		// display ... list with all list items.
 		$user_id = $_SESSION['user_id'];
 		$list_id = $args['list_id'];
 
-		$SQL = "SELECT i.id, l.list_name, l.description, i.value, i.created, i.updated
-				FROM app_list_items AS i
-				INNER JOIN app_lists AS l ON i.list_id = l.id
-				WHERE l.user_id = :user_id AND i.list_id = :list_id
-				AND i.deleted = false
-				ORDER BY i.created DESC";
+		$list = (new ListRepository($this->db))->findBy(
+		    [
+		        'id' => $list_id,
+                'user_id' => $user_id
+            ]
+        )->first();
 
-		$connection = $this->db->connection();
-		$statement = $connection->prepare($SQL);
-		$statement->bindParam(':user_id', $user_id, PDO::PARAM_INT);
-		$statement->bindParam(':list_id', $list_id, PDO::PARAM_INT);
-		$statement->execute();
-		$args['items'] = $statement->fetchAll(PDO::FETCH_ASSOC);
+
+        $items = (new ListItemRepository($this->db))->findByList($list->getId())->all();
+		$list->setItems($items);
+
+		$args['list'] = $list;
 
 		return $this->view->render($response, 'list.phtml', $args);
 	}
@@ -48,29 +50,33 @@ class ListItemController
 	public function add($request, $response, $args)
 	{
 		$list_id = $args['list_id'];
-		$repo = new ListRepository($this->db);
-		$list = $repo->find($list_id);
+		$user_id = $_SESSION['user_id'];
+
+		$body = $request->getParsedBody();
+		// TODO: VALIDATE NEW ITEM BODY!
+		$value = $body['new-item'];
+
+		$list = (new ListRepository($this->db))->findBy(
+		    [
+		        'id' => $list_id,
+                'user_id' => $user_id
+            ]
+        )->first();
+
+        $item = new ListItem();
+        $item->setValue($value);
+        $item->setList($list);
+
+        $items = new ListItemRepository($this->db);
+        $items->add($item);
 
 		return $response->withRedirect('/list/' . $list->getId());
 	}
 
 	public function displayEdit($request, $response, $args)
 	{
-		$user_id = $_SESSION['user_id'];
 		$item_id = $args['item_id'];
-
-		$SQL = "SELECT i.id, i.value, i.complete, i.deleted,
-					   l.list_name, l.description, i.list_id
-				FROM app_list_items AS i
-				INNER JOIN app_lists as l ON l.id = i.list_id
-				WHERE i.id = :item_id AND l.user_id = :user_id";
-
-		$connection = $this->db->connection();
-		$statement = $connection->prepare($SQL);
-		$statement->bindParam(':user_id', $user_id, PDO::PARAM_INT);
-		$statement->bindParam(':item_id', $item_id, PDO::PARAM_INT);
-		$statement->execute();
-		$args['item'] = $statement->fetch(PDO::FETCH_ASSOC);
+        $args['item'] = (new ListItemRepository($this->db))->find($item_id);
 
 		return $this->view->render($response, 'list-item-edit.phtml', $args);
 	}
@@ -79,19 +85,16 @@ class ListItemController
 	{
 		$body = $request->getParsedBody();
 		$item_id = $args['item_id'];
+
+		// TODO: VALIDATE!
 		$item_value = $body['item_value'];
 
-		$item = (new ListItem)->find($item_id);
-		$item->setValue($item_value);
-		$item->save();
+        $items = new ListItemRepository($this->db);
 
-		$SQL = "UPDATE app_list_items SET value = :value WHERE id = :item_id";
-		$connection = $this->db->connection();
-		$statement = $connection->prepare($SQL);
-		$statement->bindParam(':value', $item_value, PDO::PARAM_STR);
-		$statement->bindParam(':item_id', $item_id, PDO::PARAM_INT);
-		$statement->execute();
+        $item = $items->find($item_id);
+        $item->setValue($item_value);
 
+		$items->update($item);
 
 		return $response->withRedirect('/list/' . $item->getList()->getId());
 	}
@@ -135,5 +138,36 @@ class ListItemController
 		$list = $statement->fetch(PDO::FETCH_ASSOC);
 
 		return $response->withRedirect('/list/' . $list['list_id']);
+	}
+
+	public function activate($request, $response, $args)
+	{
+		$item_id = $args['item_id'];
+
+		// $item = new Item();
+		// $item->find($item_id);
+		// $item->active = true;
+		// $item->save();
+
+		$SQL = "UPDATE app_list_items SET active = true WHERE id = :item_id";
+		$connection = $this->db->connection();
+		$statement = $connection->prepare($SQL);
+		$statement->bindParam(':item_id', $item_id, PDO::PARAM_INT);
+		$statement->execute();
+
+		// return $response->withRedirect('/list/' . $item->listId);
+	}
+
+	public function deactivate($request, $response, $args)
+	{
+		$item_id = $args['item_id'];
+
+		$SQL = "UPDATE app_list_items SET active = false WHERE id = :item_id";
+		$connection = $this->db->connection();
+		$statement = $connection->prepare($SQL);
+		$statement->bindParam(':item_id', $item_id, PDO::PARAM_INT);
+		$statement->execute();
+
+		return $response->withRedirect('/list/1');
 	}
 }
