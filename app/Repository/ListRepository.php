@@ -42,6 +42,19 @@ class ListRepository
         return $this->lists;
     }
 
+    public function filter($prop, $value)
+    {
+        return array_filter($this->lists,
+            function($v) use ($prop, $value) {
+                $method = "get" . ucwords($prop);
+                if ( method_exists($v, $method) )
+                {
+                    return $v->$method() == $value;
+                }
+            }
+        );
+    }
+
 	public function find(int $id) : AppList
     {
         $SQL = "SELECT * FROM app_lists WHERE id = :list_id";
