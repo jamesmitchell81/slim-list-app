@@ -22,7 +22,6 @@ class UserRepository
 		$SQL = "SELECT * FROM app_users WHERE id = :user_id";
 		$statement = new Statement($this->db);
 		$query = $statement->prepare($SQL)->bind([ 'user_id' => $id ])->fetch();
-
 		$user = new User();
 		$user->setId($query['id']);
 		$user->setEmailAddress($query['email_address']);

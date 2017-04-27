@@ -115,18 +115,24 @@ class ListItemRepository
     {
         $fields = [];
         $fields[] = "value = :value";
-        $fields[] = "complete = :compete";
+        $fields[] = "complete = :complete";
         $fields[] = "active = :active";
+        $fields[] = "deleted = :deleted";
         $condition = "id = :item_id";
 
         $params = [
             'value' => $item->getValue(),
             'complete' => $item->isComplete(),
             'active' => $item->isActive(),
-            'item_id' => $item->getId()
+            'item_id' => $item->getId(),
+            'deleted' => $item->isDeleted()
         ];
 
         $SQL = "UPDATE {$this->table} SET " . join(", ", $fields) . " WHERE " . $condition;
+
+        var_dump($SQL);
+        exit();
+
         $statement = new Statement($this->db);
         $query = $statement->prepare($SQL)->bind($params)->execute();
 
@@ -134,5 +140,4 @@ class ListItemRepository
 
         return $this->find($statement->getLastInsertId());
     }
-
 }

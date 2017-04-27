@@ -1,0 +1,8 @@
+<div class="list-element">
+	<span class="list-details">
+		<span class="list-name"><?= $list->getListName(); ?></span>
+		<span class="list-created">Created: <?= $list->getCreated(); ?></span>
+		<span class="list-updated">Updated: <?= $list->getUpdated(); ?></span>
+	</span>
+	<a href="/list/<?= $list->getId(); ?>" class="btn btn-right view-list-btn">View</a>
+</div>

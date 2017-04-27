@@ -2,11 +2,27 @@
 
 $container = $app->getContainer();
 
-// view renderer
-$container['renderer'] = function ($c) {
-    $settings = $c->get('settings')['renderer'];
-    return new Slim\Views\PhpRenderer($settings['template_path']);
+// // view renderer
+// $container['renderer'] = function ($c) {
+//     $settings = $c->get('settings')['renderer'];
+//     return new Slim\Views\PhpRenderer($settings['template_path']);
+// };
+
+// Register component on container
+$container['view'] = function ($container) {
+	$settings = $container->get('settings')['renderer'];
+    $view = new \Slim\Views\Twig($settings['template_path'] . '/twig/', [
+        'cache' => false
+    ]);
+
+    // Instantiate and add Slim specific extension
+    $basePath = rtrim(str_ireplace('index.php', '', $container['request']->getUri()->getBasePath()), '/');
+    $view->addExtension(new Slim\Views\TwigExtension($container['router'], $basePath));
+    $view->addExtension(new \Twig_Extension_Debug());
+
+    return $view;
 };
+
 
 // monolog
 $container['logger'] = function ($c) {
@@ -16,6 +32,7 @@ $container['logger'] = function ($c) {
     $logger->pushHandler(new Monolog\Handler\StreamHandler($settings['path'], $settings['level']));
     return $logger;
 };
+
 
 // $container['em'] = function($c) {
 // 	$settings = $c->get('settings')['doctrine'];
@@ -51,14 +68,14 @@ $container['storage'] = function($cont) {
 /* Controller/Action Factory. */
 $container['App\Controllers\HomeController'] = function($cont) {
 	return new App\Controllers\HomeController(
-			$cont->get('renderer'),
+			$cont->get('view'),
 			$cont->get('logger')
 		);
 };
 
 $container['App\Controllers\ListController'] = function($cont) {
 	return new App\Controllers\ListController(
-			$cont->get('renderer'),
+			$cont->get('view'),
 			$cont->get('logger'),
 			$cont->get('database')
 		);
@@ -66,7 +83,7 @@ $container['App\Controllers\ListController'] = function($cont) {
 
 $container['App\Controllers\ListItemController'] = function($cont) {
 	return new App\Controllers\ListItemController(
-			$cont->get('renderer'),
+			$cont->get('view'),
 			$cont->get('logger'),
 			$cont->get('database')
 		);

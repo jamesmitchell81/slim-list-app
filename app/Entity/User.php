@@ -2,19 +2,11 @@
 
 namespace App\Entity;
 
-use App\Persistence\Record;
-use App\Persistence\PdoDatabase;
-use \PDO;
-
 /**
  * User
  */
-class User extends Record
+class User extends Entity
 {
-    /**
-     * @var integer
-     */
-    private $id;
 
     /**
      * @var string
@@ -32,52 +24,75 @@ class User extends Record
     private $password;
 
     /**
-     * @var timestamp
+     * @var array
      */
-    private $created;
+    private $lists = [];
 
     /**
-     * @var timestamp
+     * @return string
      */
-    private $updated;
-
-    public function getId()
+    public function getUsername()
     {
-        return $this->id;
+        return $this->username;
     }
 
-    private function __construct($id, $username, $emailAddress, $created, $updated)
+    /**
+     * @param string $username
+     */
+    public function setUsername($username)
     {
-        $this->id = $id;
         $this->username = $username;
-        $this->emailAddress = $emailAddress;
-        $this->created = $created;
-        $this->updated = $updated;
-        return $this;
     }
 
-    public static function find(int $id)
+    /**
+     * @return string
+     */
+    public function getEmailAddress()
     {
-        $SQL = "SELECT * FROM app_users WHERE id = :user_id";
-        if ( !parent::$connection )
-        {
-            parent::$connection = parent::connect();
-        }
-        $statement = parent::$connection->prepare($SQL);
-        $statement->bindParam(':user_id', $id, PDO::PARAM_INT);
-        $statement->execute();
-        $query = $statement->fetch(PDO::FETCH_ASSOC);
-
-        // if not null.
-            // return empty?
-
-        return new self(
-                $id,
-                $query['username'],
-                $query['email_address'],
-                $query['created'],
-                $query['updated']
-            );
+        return $this->emailAddress;
     }
+
+    /**
+     * @param string $emailAddress
+     */
+    public function setEmailAddress($emailAddress)
+    {
+        $this->emailAddress = $emailAddress;
+    }
+
+    /**
+     * @return string
+     */
+    public function getPassword()
+    {
+        return $this->password;
+    }
+
+    /**
+     * @param string $password
+     */
+    public function setPassword($password)
+    {
+        $this->password = $password;
+    }
+
+    /**
+     * @return array
+     */
+    public function getLists()
+    {
+        return $this->lists;
+    }
+
+    /**
+     * @param array $lists
+     */
+    public function setLists($lists)
+    {
+        $this->lists = $lists;
+    }
+
+
+
 }
 

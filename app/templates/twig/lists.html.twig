@@ -1,0 +1,24 @@
+
+{% extends "base.html.twig" %}
+
+{% block content %}
+<div class="main-list-left">
+    <form action="/lists/add" method="POST">
+        <!-- CSRF field -->
+        <input type="text" class="list-input" name="list_name" id="list_name" autofocus>
+    </form>
+    {% if user.getLists()|length == 0 %}
+        <span class="empty-lists">There are no lists.</span>
+    {% endif %}
+    {% for list in user.getLists() %}
+        <span class="list-details">
+            <span class="list-name">{{ list.getListName() }}</span>
+            <span class="list-created">Created: {{ list.getCreated() }}</span>
+            <span class="list-updated">Updated: {{ list.getUpdated() }}</span>
+        </span>
+        <a href="/item/{{ list.getId() }}/edit" class="btn item-edit-btn">&vellip;</a>
+    {% endfor %}
+</div>
+<div class="list-items-right">
+</div>
+{% endblock %}

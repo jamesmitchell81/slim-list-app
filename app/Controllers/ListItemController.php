@@ -2,14 +2,15 @@
 
 namespace App\Controllers;
 
-use App\Repository\ListItemRepository;
-use Slim\Views\PhpRenderer as View;
+use \Psr\Http\Message\ServerRequestInterface as Request;
+use \Psr\Http\Message\ResponseInterface as Response;
+use Slim\Views\Twig as View;
 use Psr\Log\LoggerInterface;
 
+use App\Repository\ListItemRepository;
+use App\Repository\ListRepository;
 use App\Entity\ListItem;
 use App\Persistence\Database;
-use App\Repository\ListRepository;
-use \PDO;
 
 class ListItemController
 {
@@ -25,31 +26,57 @@ class ListItemController
 	}
 
 
-    public function display($request, $response, $args)
+    /**
+     * @param Request $request
+     * @param Response $response
+     * @param $args
+     * @return Response
+     */
+    public function display(Request $request, Response $response, $args)
 	{
-		// display ... list with all list items.
 		$user_id = $_SESSION['user_id'];
-		$list_id = $args['list_id'];
+		$list_id = $request->getAttribute('list_id');
 
-		$list = (new ListRepository($this->db))->findBy(
-		    [
-		        'id' => $list_id,
-                'user_id' => $user_id
-            ]
-        )->first();
+       // $list = (new ListRepository($this->db))->findBy(
+       //     [
+       //         'id' => $list_id,
+       //         'user_id' => $user_id
+       //     ]
+       // )->first();
 
+        // get all lists.
+        $repo = new ListRepository($this->db);
+        $lists = $repo->findByUser($user_id)->all();
+        var_dump($list_id, $lists);
+        exit();
+
+        // order by created timestamp desc
+        // $lists = $repo->sort('field')->desc();
+        // $lists = $repo->sort('field')->asc();
+
+        // $lists = $repo->sort('-field');
+        // $lists = $repo->sort('+field');
+
+        // filter the current list.
+        $list = $repo->filter('id', $list_id)[0];
 
         $items = (new ListItemRepository($this->db))->findByList($list->getId())->all();
 		$list->setItems($items);
 
 		$args['list'] = $list;
+        $args['lists'] = $lists;
 
-		return $this->view->render($response, 'list.phtml', $args);
+		return $this->view->render($response, 'lists.html.twig', $args);
 	}
 
-	public function add($request, $response, $args)
+    /**
+     * @param Request $request
+     * @param Response $response
+     * @return mixed
+     */
+    public function add(Request $request, Response $response)
 	{
-		$list_id = $args['list_id'];
+		$list_id = $request->getAttribute('list_id');
 		$user_id = $_SESSION['user_id'];
 
 		$body = $request->getParsedBody();
@@ -73,101 +100,112 @@ class ListItemController
 		return $response->withRedirect('/list/' . $list->getId());
 	}
 
-	public function displayEdit($request, $response, $args)
+    /**
+     * @param Request $request
+     * @param Response $response
+     * @param $args
+     * @return Response
+     */
+    public function displayEdit(Request $request, Response $response, $args)
 	{
-		$item_id = $args['item_id'];
+		$item_id = $request->getAttribute('item_id');
         $args['item'] = (new ListItemRepository($this->db))->find($item_id);
 
 		return $this->view->render($response, 'list-item-edit.phtml', $args);
 	}
 
-	public function edit($request, $response, $args)
+    /**
+     * @param Request $request
+     * @param Response $response
+     * @return mixed
+     */
+    public function edit(Request $request, Response $response)
 	{
 		$body = $request->getParsedBody();
-		$item_id = $args['item_id'];
+		$item_id = $request->getAttribute('item_id');
 
 		// TODO: VALIDATE!
 		$item_value = $body['item_value'];
 
         $items = new ListItemRepository($this->db);
-
         $item = $items->find($item_id);
         $item->setValue($item_value);
-
-		$items->update($item);
+		$item = $items->update($item);
 
 		return $response->withRedirect('/list/' . $item->getList()->getId());
 	}
 
 	// Soft Delete.
-	public function delete($request, $response, $args)
+
+    /**
+     * @param Request $request
+     * @param Response $response
+     * @return mixed
+     */
+    public function delete(Request $request, Response $response)
 	{
-		$item_id = $args['item_id'];
+        $item_id = $request->getAttribute('item_id');
 
-		// $SQL = "DELETE FROM app_list_items WHERE id = :list_id";
-		$SQL = "UPDATE app_list_items SET deleted = true WHERE id = :item_id";
-		$connection = $this->db->connection();
-		$statement = $connection->prepare($SQL);
-		$statement->bindParam(':item_id', $item_id, PDO::PARAM_INT);
-		$statement->execute();
+        $items = new ListItemRepository($this->db);
 
-		// get the list id in order to return after edit.
-		$SQL = "SELECT list_id FROM app_list_items WHERE id = :item_id";
-		$statement = $connection->prepare($SQL);
-		$statement->bindParam(':item_id', $item_id, PDO::PARAM_INT);
-		$statement->execute();
-		$list = $statement->fetch(PDO::FETCH_ASSOC);
+        $item = $items->find($item_id);
+        $item->setDeleted(true);
+        $item = $items->update($item);
 
-		return $response->withRedirect('/list/' . $list['list_id']);
+        return $response->withRedirect('/list/' . $item->getList()->getId());
 	}
 
-	public function complete($request, $response, $args)
+    /**
+     * @param Request $request
+     * @param Response $response
+     * @return mixed
+     */
+    public function complete(Request $request, Response $response)
 	{
-		$item_id = $args['item_id'];
+		$item_id = $request->getAttribute('item_id');
 
-		$SQL = "UPDATE app_list_items SET complete = true WHERE id = :item_id";
-		$connection = $this->db->connection();
-		$statement = $connection->prepare($SQL);
-		$statement->bindParam(':item_id', $item_id, PDO::PARAM_INT);
-		$statement->execute();
+        $items = new ListItemRepository($this->db);
 
-		$SQL = "SELECT list_id FROM app_list_items WHERE id = :item_id";
-		$statement = $connection->prepare($SQL);
-		$statement->bindParam(':item_id', $item_id, PDO::FETCH_ASSOC);
-		$statement->execute();
-		$list = $statement->fetch(PDO::FETCH_ASSOC);
+        $item = $items->find($item_id);
+        $item->setComplete(
+            !$item->isComplete()
+        );
+        $item = $items->update($item);
 
-		return $response->withRedirect('/list/' . $list['list_id']);
+		return $response->withRedirect('/list/' . $item->getList()->getId());
 	}
 
-	public function activate($request, $response, $args)
+    /**
+     * @param Request $request
+     * @param Response $response
+     * @return mixed
+     */
+    public function activate(Request $request, Response $response)
 	{
-		$item_id = $args['item_id'];
+		$item_id = $request->getAttribute('item_id');
 
-		// $item = new Item();
-		// $item->find($item_id);
-		// $item->active = true;
-		// $item->save();
+        $items = new ListItemRepository($this->db);
+        $item = $items->find($item_id);
+        $item->setActive(true);
+        $item = $items->update($item);
 
-		$SQL = "UPDATE app_list_items SET active = true WHERE id = :item_id";
-		$connection = $this->db->connection();
-		$statement = $connection->prepare($SQL);
-		$statement->bindParam(':item_id', $item_id, PDO::PARAM_INT);
-		$statement->execute();
-
-		// return $response->withRedirect('/list/' . $item->listId);
+        return $response->withRedirect('/list/' . $item->getList()->getId());
 	}
 
-	public function deactivate($request, $response, $args)
+    /**
+     * @param Request $request
+     * @param Response $response
+     * @return mixed
+     */
+    public function deactivate(Request $request, Response $response)
 	{
-		$item_id = $args['item_id'];
+        $item_id = $request->getAttribute('item_id');
 
-		$SQL = "UPDATE app_list_items SET active = false WHERE id = :item_id";
-		$connection = $this->db->connection();
-		$statement = $connection->prepare($SQL);
-		$statement->bindParam(':item_id', $item_id, PDO::PARAM_INT);
-		$statement->execute();
+        $items = new ListItemRepository($this->db);
+        $item = $items->find($item_id);
+        $item->setActive(false);
+        $item = $items->update($item);
 
-		return $response->withRedirect('/list/1');
+        return $response->withRedirect('/list/' . $item->getList()->getId());
 	}
 }

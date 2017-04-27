@@ -7,29 +7,33 @@
 
 	<div class="container">
 		<div class="list-header">
-			<h3>
-				<a href="/lists">&lt;&dash;</a>
-				<?= $items[0]['list_name']; ?>
-			</h3>
-			<p><?= $items[0]['description']; ?></p>
+			<h2>
+				<a href="/lists" class="backarrow">&mapstoleft;</a>
+				<?= $list->getListName(); ?>
+			</h2>
 		</div>
 
-		<form action="/list/<?= $list_id; ?>/add" method="POST">
+		<form action="/list/<?= $list->getId(); ?>/add" method="POST">
 			<!-- CSRF field -->
-			<input type="text" class="list-input">
+			<input type="text" class="list-input" name="new-item" id="new-item" autofocus autocomplete="off">
 		</form>
 
-		<?php foreach($items as $item): ?>
+	<?php foreach($list->getItems() as $item): ?>
+		<?php if ( $item->isActive() ): ?>
+		<div class="list-element item-complete">
+			<a href="/item/<?= $item->getId(); ?>/deactivate" class="btn btn-left item-check-btn">on</a>
+		<?php else: ?>
 		<div class="list-element">
-			<a href="/item/<?= $item['id']; ?>/complete" class="btn btn-left item-check-btn">C</a>
+			<a href="/item/<?= $item->getId(); ?>/activate" class="btn btn-left item-check-btn">off</a>
+		<?php endif; ?>
 			<span class="list-details">
-				<span class="list-name"><?= $item['value']; ?></span>
-				<span class="list-created">Created: <?= $item['created']; ?></span>
-				<span class="list-updated">Updated: <?= $item['updated']; ?></span>
+				<span class="list-name"><?= $item->getValue(); ?></span>
+				<span class="list-created">Created: <?= $item->getCreated(); ?></span>
+				<span class="list-updated">Updated: <?= $item->getUpdated(); ?></span>
 			</span>
-			<a href="/item/<?= $item['id']; ?>/edit" class="btn btn-right item-check-btn">Edit</a>
+			<a href="/item/<?= $item->getId(); ?>/edit" class="btn item-edit-btn">&vellip;</a>
 		</div>
-		<?php endforeach; ?>
+	<?php endforeach; ?>
 	</div>
 
 </body>

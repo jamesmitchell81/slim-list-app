@@ -36,6 +36,21 @@ class Statement
 		return $this;
 	}
 
+	public function bindInt()
+	{
+
+	}
+
+	public function execute()
+    {
+        return $this->statement->execute();
+    }
+
+    public function getLastInsertId() : int
+    {
+        return $this->connection->lastInsertId();
+    }
+
 	public function fetch()
 	{
 		$this->statement->execute();

@@ -16,6 +16,6 @@ abstract class Record
         $uname = getenv('DB_USERNAME');
         $pword = getenv('DB_PASSWORD');
         $db = new PdoDatabase($driver, $host, $port, $dbname, $uname, $pword);
-        return $db->connection();
+        self::$connection = $db->connection();
     }
 }

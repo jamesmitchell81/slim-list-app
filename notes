@@ -1,0 +1,32 @@
+
+User
+	id
+	username
+	email
+	password
+	lists[]
+
+	// UserRepo->find($id);
+	// UserRepo->getLists();
+
+	List
+		id
+		name
+		description
+		items[]
+		created
+		updated
+		complete?
+
+		// ListRepo->find($id)
+		// ListRepo->getItems()
+
+		Item
+			id
+			value
+			deleted?
+			complete?
+			created
+			updated
+
+			// ItemRepo->find($id)

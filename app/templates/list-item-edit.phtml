@@ -10,18 +10,17 @@
 		<!-- list details -->
 		<div class="list-header">
 			<h3>
-				<a href="/list/<?= $item['list_id']; ?>">&lt;&dash;</a>
-				<?= $item['list_name']; ?>
+				<a href="/list/<?= $item->getList()->getId(); ?>">&lt;&dash;</a>
+				<?= $item->getList()->getListName(); ?>
 			</h3>
-			<p><?= $item['description']; ?></p>
 		</div>
 
-		<form action="/item/<?= $item['id']; ?>/edit" method="POST">
+		<form action="/item/<?= $item->getId(); ?>/edit" method="POST">
 			<!-- csrf field -->
-			<input type="text" value="<?= $item['value']; ?>" name="item_value" id="item_value" class="list-input">
+			<input type="text" value="<?= $item->getValue(); ?>" name="item_value" id="item_value" class="list-input">
 		</form>
-		<a class="list-element list-element-action" href="/item/<?= $item['id']; ?>/delete">delete</a>
-		<a class="list-element list-element-action" href="/item/<?= $item['id']; ?>/complete">complete</a>
+		<a class="list-element list-element-action" href="/item/<?= $item->getId(); ?>/delete">delete</a>
+		<a class="list-element list-element-action" href="/item/<?= $item->getId(); ?>/complete">complete</a>
 	</div>
 
 </body>

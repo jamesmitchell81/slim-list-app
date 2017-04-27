@@ -2,14 +2,14 @@
 
 namespace App\Controllers;
 
-use App\Repository\ListRepository;
-use App\Repository\UserRepository;
-use Slim\Views\PhpRenderer as View;
+use \Psr\Http\Message\ServerRequestInterface as Request;
+use \Psr\Http\Message\ResponseInterface as Response;
+use Slim\Views\Twig as View;
 use Psr\Log\LoggerInterface;
 
+use App\Repository\ListRepository;
+use App\Repository\UserRepository;
 use App\Persistence\Database;
-use \PDO;
-
 use App\Entity\AppList;
 
 class ListController
@@ -26,7 +26,7 @@ class ListController
 		$this->db = $db;
 	}
 
-	public function display($request, $response, $args)
+	public function display(Request $request, Response $response, $args)
 	{
 		// TEMP: session get user.
         $user_id = $_SESSION['user_id'];
@@ -34,16 +34,20 @@ class ListController
 		$users = new UserRepository($this->db);
 		$user = $users->find($user_id);
 
-		$lists = (new ListRepository($this->db))->findByUser($user_id)->all();
+		$lists = (new ListRepository($this->db))
+                    ->findByUser($user_id)
+                    ->all();
+
 		$user->setLists($lists);
 
 		$args['user'] = $user;
+		$args['name'] = "James";
 
-		return $this->view->render($response, 'lists.phtml', $args);
+		return $this->view->render($response, 'lists.html.twig', $args);
 	}
 
 	// Add an list to a user
-	public function add($request, $response, $args)
+	public function add(Request $request, Response $response)
 	{
 		$body = $request->getParsedBody();
 
@@ -57,6 +61,6 @@ class ListController
 		$lists = new ListRepository($this->db);
 		$list = $lists->add($list);
 
-		return $response->withRedirect('/list/' . $list->getId());
+		return $response->withRedirect('/lists/' . $list->getId());
 	}
 }

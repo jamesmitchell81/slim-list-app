@@ -2,23 +2,12 @@
 
 namespace App\Entity;
 
+use App\Entity\User as User;
 
-/**
- * Class AppList
- * @package App\Entity
- */
-class AppList
+class AppList extends Entity
 {
-
-    /**
-     * @var \User
-     */
     private $user;
 
-    /**
-     * @var
-     */
-    private $id;
     /**
      * @var
      */
@@ -27,56 +16,25 @@ class AppList
      * @var
      */
     private $description;
-    /**
-     * @var
-     */
-    private $created;
-    /**
-     * @var
-     */
-    private $updated;
+
     /**
      * @var bool
      */
     private $complete;
 
-    public static function from(array $state)
-    {
-        // TODO: validate!!!!
-        return new self(
-                (int)$state['id'],
-                $state['list_name'],
-                $state['description'],
-                $state['created'],
-                $state['updated'],
-                (bool)$state['complete']
-            );
-    }
+    private $items = [];
 
-    private function __construct(int $id, $list_name, $description, $created, $updated, bool $complete)
-    {
-        $this->id = $id;
-        $this->list_name = $list_name;
-        $this->description = $description;
-        $this->created = $created;
-        $this->updated = $updated;
-        $this->complete = $complete;
-    }
-
-    /**
-     * @return mixed
-     */
-    public function getUser()
+    public function getUser() : User
     {
         return $this->user;
     }
 
     /**
-     * @return mixed
+     * @param \App\Entity\User $user
      */
-    public function getId()
+    public function setUser(User $user)
     {
-        return $this->id;
+        $this->user = $user;
     }
 
     /**
@@ -88,6 +46,14 @@ class AppList
     }
 
     /**
+     * @param mixed $list_name
+     */
+    public function setListName($list_name)
+    {
+        $this->list_name = $list_name;
+    }
+
+    /**
      * @return mixed
      */
     public function getDescription()
@@ -96,27 +62,44 @@ class AppList
     }
 
     /**
-     * @return mixed
+     * @param mixed $description
      */
-    public function getCreated()
+    public function setDescription($description)
     {
-        return $this->created;
+        $this->description = $description;
     }
 
     /**
-     * @return mixed
+     * @return bool
      */
-    public function getUpdated()
-    {
-        return $this->updated;
-    }
-
-    /**
-     * @return mixed
-     */
-    public function getComplete()
+    public function isComplete()
     {
         return $this->complete;
     }
+
+    /**
+     * @param bool $complete
+     */
+    public function setComplete(bool $complete)
+    {
+        $this->complete = $complete;
+    }
+
+    /**
+     * @return array
+     */
+    public function getItems(): array
+    {
+        return $this->items;
+    }
+
+    /**
+     * @param array $items
+     */
+    public function setItems(array $items)
+    {
+        $this->items = $items;
+    }
+
 }
 

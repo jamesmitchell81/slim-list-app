@@ -6,23 +6,20 @@
 <body>
 
 	<div class="container">
-		<form action="/list/<?= $items[0]['list_id']; ?>/add-item" method="POST">
-			<!-- CSRF field -->
-			<input type="text" class="list-input">
-		</form>
-		<?php if ( count($lists) == 0 ): ?>
-			<span class="empty-lists">There are no lists.</span>
-		<?php endif; ?>
-		<?php foreach( $lists as $list ): ?>
-			<div class="list-element">
-				<span class="list-details">
-					<span class="list-name"><?= $list['list_name'] ?></span>
-					<span class="list-created">Created: <?= $list['created'] ?></span>
-					<span class="list-updated">Updated: <?= $list['updated'] ?></span>
-				</span>
-				<a href="/list/<?= $list['id'] ?>" class="btn btn-right view-list-btn">View</a>
-			</div>
-		<?php endforeach; ?>
+        <div class="main-list-left">
+            <form action="/lists/add" method="POST">
+                <!-- CSRF field -->
+                <input type="text" class="list-input" name="list_name" id="list_name" autofocus>
+            </form>
+            <?php if ( count($user->getLists()) == 0 ): ?>
+                <span class="empty-lists">There are no lists.</span>
+            <?php endif; ?>
+            <?php foreach( $user->getLists() as $list ): ?>
+
+            <?php endforeach; ?>
+        </div>
+        <div class="list-items-right">
+        </div>
 	</div>
 
 </body>

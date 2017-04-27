@@ -55,6 +55,11 @@ class ListRepository
         );
     }
 
+    public function sort()
+    {
+
+    }
+
 	public function find(int $id) : AppList
     {
         $SQL = "SELECT * FROM app_lists WHERE id = :list_id";
