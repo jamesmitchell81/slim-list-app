@@ -65,12 +65,10 @@ class ListItemRepository
 
         $query = (new Statement($this->db))->prepare($SQL)->bind(['list_id' => $list_id])->fetchAll();
 
-        if ( !$query ) $this->items[] = new ListItem;
+        if ( !$query ) return $this; // $this->items[] = new ListItem;
 
         foreach ( $query as $row )
-        {
             $this->items[] = $this->set($row);
-        }
 
         return $this;
     }
@@ -86,7 +84,7 @@ class ListItemRepository
 
         $query = (new Statement($this->db))->prepare($SQL)->bind($params)->fetchAll();
 
-        if ( !$query ) $this->items[] = new ListItem;
+        if ( !$query ) return $this; // $this->items[] = new ListItem;
 
         foreach( $query as $row )
             $this->items[] = $this->set($row);
@@ -106,7 +104,7 @@ class ListItemRepository
             ]
         )->execute();
 
-        if ( !$query ) return new ListItem;
+        if ( !$query ) return false;
 
         return $this->find($statement->getLastInsertId());
     }
@@ -136,7 +134,7 @@ class ListItemRepository
         $statement = new Statement($this->db);
         $query = $statement->prepare($SQL)->bind($params)->execute();
 
-        if ( !$query ) return new ListItem;
+        if ( !$query ) return false;
 
         return $this->find($statement->getLastInsertId());
     }
