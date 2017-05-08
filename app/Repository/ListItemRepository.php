@@ -12,7 +12,7 @@ class ListItemRepository
 
 	private $db;
 	private $table = "app_list_items";
-	private $items = [];
+	private $collection = [];
 
 	public function __construct(Database $db)
 	{
@@ -36,39 +36,52 @@ class ListItemRepository
 		return $item;
 	}
 
+    public function filter() {}
+
+    public function sort(array $fields)
+    {
+        return new EntitySorter($this->collection, $fields);
+    }
+
 	public function first()
     {
-        if ( count($this->items) > 0 )
-            return $this->items[0];
+        if ( count($this->collection) > 0 )
+            return $this->collection[0];
 
         return new ListItem;
     }
 
-    public function all()
+    public function all() : array
     {
-        return $this->items;
+        return $this->collection;
     }
 
-	public function find(int $id) : ListItem
+    public function length() : int
+    {
+        return count($this->collection);
+    }
+
+	public function find(int $id)
     {
         $SQL = "SELECT * FROM app_list_items WHERE id = :item_id";
         $query = (new Statement($this->db))->prepare($SQL)->bind(['item_id' => $id])->fetch();
 
-        if ( !$query ) return new ListItem;
+        if ( !$query ) return false;
 
         return $this->set($query);
     }
 
+    // $list = $repo->findByList(list_id)->first();
     public function findByList(int $list_id)
     {
         $SQL = "SELECT * FROM app_list_items WHERE list_id = :list_id";
 
         $query = (new Statement($this->db))->prepare($SQL)->bind(['list_id' => $list_id])->fetchAll();
 
-        if ( !$query ) return $this; // $this->items[] = new ListItem;
+        if ( !$query ) return $this;
 
         foreach ( $query as $row )
-            $this->items[] = $this->set($row);
+            $this->collection[] = $this->set($row);
 
         return $this;
     }
@@ -78,21 +91,21 @@ class ListItemRepository
         $conditions = [];
 
         foreach ( $params as $key => $value )
-            $conditions[] = "{$key} = {$key}";
+            $conditions[] = "{$key} = :{$key}";
 
         $SQL = "SELECT * FROM {$this->table} WHERE " . join(" AND ", $conditions);
 
         $query = (new Statement($this->db))->prepare($SQL)->bind($params)->fetchAll();
 
-        if ( !$query ) return $this; // $this->items[] = new ListItem;
+        if ( !$query ) return $this;
 
         foreach( $query as $row )
-            $this->items[] = $this->set($row);
+            $this->collection[] = $this->set($row);
 
         return $this;
     }
 
-    public function add(ListItem $item) : ListItem
+    public function add(ListItem $item) : int
     {
         $SQL = "INSERT INTO {$this->table} (value, list_id) VALUES (:value, :list_id)";
 
@@ -106,10 +119,10 @@ class ListItemRepository
 
         if ( !$query ) return false;
 
-        return $this->find($statement->getLastInsertId());
+        return $statement->getLastInsertId();
     }
 
-    public function update(ListItem $item)
+    public function update(ListItem $item) : int
     {
         $fields = [];
         $fields[] = "value = :value";

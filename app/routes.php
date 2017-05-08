@@ -2,13 +2,15 @@
 
 $app->get('/', 'App\Controllers\HomeController:home');
 
-$app->get('/lists', 'App\Controllers\ListController:display');
-$app->post('/lists/add', 'App\Controllers\ListController:add');
+$app->get('/lists', 'App\Controllers\ListController:display'); // HomeController?
+$app->post('/lists', 'App\Controllers\ListController:add');
 
 $app->get('/lists/{list_id}', 'App\Controllers\ListItemController:display');
-$app->post('/lists/{list_id}/items', 'App\Controllers\ListItemController:add');
-$app->get('/lists/{list_id}/items/{item_id}/edit', 'App\Controllers\ListItemController:displayEdit');
-$app->post('/lists/{list_id}/items/{item_id}/edit', 'App\Controllers\ListItemController:edit');
+$app->post('/lists/{list_id}', 'App\Controllers\ListItemController:add');
+
+$app->get('/lists/{list_id}/items/{item_id}', 'App\Controllers\ListItemController:item');
+$app->post('/lists/{list_id}/items/{item_id}', 'App\Controllers\ListItemController:edit');
+
 // $app->put('/lists/{list_id}/items/{item_id}', 'App\Controllers\ListItemController:edit');
 // $app->patch('/lists/{list_id}/items/{item_id}', 'App\Controllers\ListItemController:edit');
 

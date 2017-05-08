@@ -16,7 +16,7 @@ session_start();
 
 // Temp!
 // Do Auth and permissions etc.
-$_SESSION['user_id'] = 1;
+$_SESSION['user_id'] = 2;
 
 $settings = require __DIR__.'/../app/settings.php';
 $app = new Slim\App($settings);

@@ -10,6 +10,10 @@ html {
   box-sizing: border-box;
 }
 
+html, body, .container {
+	height: 100%;
+}
+
 *, *:before, *:after {
   box-sizing: inherit;
 }
@@ -28,15 +32,53 @@ html, body {
 }
 
 .container {
-	/*max-width: 44em;*/
 	min-width: 100%;
 	margin: 0 auto;
+	display: flex;
+}
+
+.column {
+	padding-top: 3em;
+	float: left;
+	height: 100%;
+	overflow: scroll;
 }
 
 .main-list-left {
+	/*flex-direction: column;*/
 	width: 33%;
 	max-width: 25em;
 }
+
+.list-items-right {
+	flex-direction: column;
+	flex-grow: 1;
+}
+
+
+.list-wrapper {
+/*	background: #f00;
+	float: left;
+	width: 33%;
+	max-width: 25em;
+	overflow: scroll;
+*/
+	/*float: left;*/
+}
+
+.list-form {
+	position: fixed;
+	width: 33%;
+	max-width: 25em;
+	top: 0;
+	left: 0;
+}
+
+.list-item-form {
+	position: fixed;
+	top: 0;
+}
+
 
 .list-header {
 	margin: 0.5em;
@@ -58,6 +100,12 @@ form {
 	font-size: 1.25em;
 	background: #cacaca;
 	border: none;
+	outline: none;
+}
+
+.list-input:focus {
+	background: #333;
+	color: #fff;
 }
 
 .list-element {
@@ -65,6 +113,17 @@ form {
 	display: flex;
 	justify-content: space-between;
 	border-bottom: 1px solid #cacaca;
+}
+
+.list-element.list-current {
+	background: #cacaca;
+}
+
+.list-empty {
+	position: relative;
+	line-height: 5;
+	top: 10em;
+	left: 50%;
 }
 
 .list-details {
@@ -91,7 +150,7 @@ form {
 	text-align: center;
 }
 
-.item-edit-btn {
+.item-edit-btn, .show-list-btn {
 	text-align: center;
 	padding: 0.5em;
 	text-decoration: none;

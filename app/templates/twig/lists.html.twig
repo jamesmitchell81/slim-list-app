@@ -2,23 +2,25 @@
 {% extends "base.html.twig" %}
 
 {% block content %}
-<div class="main-list-left">
-    <form action="/lists/add" method="POST">
+<div class="main-list-left column">
+    <form action="/lists" method="POST" class="list-form">
         <!-- CSRF field -->
-        <input type="text" class="list-input" name="list_name" id="list_name" autofocus>
+        <input type="text" class="list-input" name="list-name" id="list-name" autofocus autocomplete="off">
     </form>
-    {% if user.getLists()|length == 0 %}
-        <span class="empty-lists">There are no lists.</span>
+    {% if lists|length == 0 %}
+        <span class="lists-empty">There are no lists.</span>
     {% endif %}
-    {% for list in user.getLists() %}
-        <span class="list-details">
-            <span class="list-name">{{ list.getListName() }}</span>
-            <span class="list-created">Created: {{ list.getCreated() }}</span>
-            <span class="list-updated">Updated: {{ list.getUpdated() }}</span>
-        </span>
-        <a href="/item/{{ list.getId() }}/edit" class="btn item-edit-btn">&vellip;</a>
+    {% for list in lists %}
+        <div class="list-element">
+            <span class="list-details">
+                <span class="list-name">{{ list.getListName() }}</span>
+                <span class="list-created">Created: {{ list.getCreated() }}</span>
+                <span class="list-updated">Updated: {{ list.getUpdated() }}</span>
+            </span>
+            <a href="/lists/{{ list.getId() }}" class="btn show-list-btn">&vellip;</a>
+        </div>
     {% endfor %}
 </div>
-<div class="list-items-right">
+<div class="list-items-right column">
 </div>
 {% endblock %}

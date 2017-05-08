@@ -7,7 +7,7 @@ use \PDO;
 class Statement
 {
 	private $db;
-	private $statement;
+	public $statement;
 	private $connection;
 
 	private $fetchType = PDO::FETCH_ASSOC;
@@ -34,11 +34,6 @@ class Statement
 		}
 
 		return $this;
-	}
-
-	public function bindInt()
-	{
-
 	}
 
 	public function execute()

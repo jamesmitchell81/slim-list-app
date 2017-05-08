@@ -1,0 +1,21 @@
+{% extends "base.html.twig" %}
+
+{% block content %}
+<div class="list-item-edit">
+	<!-- list details -->
+	<div class="list-header">
+		<h3>
+			<a href="/lists/{{ list_id }}">&lt;&dash;</a>
+			{{ item.getList.getListName() }}
+		</h3>
+	</div>
+
+	<form action="/lists/{{ list_id }}/items/{{ item.getId() }}/edit" method="POST">
+		<!-- csrf field -->
+		<input type="text" value="{{ item.getValue() }}" name="item_value" id="item_value" class="list-input">
+	</form>
+	<a class="list-element list-element-action" href="">delete</a>
+	<a class="list-element list-element-action" href="">complete</a>
+	</div>
+</div>
+{% endblock %}

@@ -6,11 +6,14 @@ use App\Persistence\Database;
 use App\Persistence\Statement;
 
 use App\Entity\AppList;
+// use App\Util\Filters;
 
 class ListRepository
 {
+    use \App\Util\Filters;
+
 	private $db;
-	private $lists;
+	private $collection;
 
 	public function __construct(Database $db)
 	{
@@ -29,12 +32,12 @@ class ListRepository
         return $list;
     }
 
-    public function first() : AppList
+    public function first()
     {
-        if ( count($this->lists) > 0 )
-            return $this->lists[0];
+        if ( count($this->collection) > 0 )
+            return $this->collection[0];
 
-        return new AppList;
+        return false;
     }
 
     public function all()
@@ -42,25 +45,22 @@ class ListRepository
         return $this->lists;
     }
 
+    public function length()
+    {
+        return count($this->collection);
+    }
+
     public function filter($prop, $value)
     {
-        return array_filter($this->lists,
-            function($v) use ($prop, $value) {
-                $method = "get" . ucwords($prop);
-                if ( method_exists($v, $method) )
-                {
-                    return $v->$method() == $value;
-                }
-            }
-        );
+        return $this->entityArrayFilter($prop, $value);
     }
 
-    public function sort()
+    public function sort(array $fields)
     {
-
+        return new EntitySorter($this->collection, $fields);
     }
 
-	public function find(int $id) : AppList
+	public function find(int $id) : AppList // X
     {
         $SQL = "SELECT * FROM app_lists WHERE id = :list_id";
 
@@ -69,7 +69,7 @@ class ListRepository
             ['list_id' => $id]
         )->fetch();
 
-        if ( !$query ) return new AppList;
+        if ( !$query ) return false;
 
         return $this->set($query);
     }
@@ -80,7 +80,7 @@ class ListRepository
         $query = (new Statement($this->db))->prepare($SQL)->bind([ 'user_id' => $user_id ])->fetchAll();
 
         foreach ( $query as $row )
-            $this->lists[] = $this->set($row);
+            $this->collection[] = $this->set($row);
 
         return $this;
     }
@@ -90,19 +90,22 @@ class ListRepository
         $conditions = [];
 
         foreach ( $params as $key => $value )
-            $conditions[] = "{$key} = {$key}";
+            $conditions[] = "{$key} = :{$key}";
 
         $SQL = "SELECT * FROM app_lists WHERE " . join(" AND ", $conditions);
 
-        $query = (new Statement($this->db))->prepare($SQL)->bind($params)->fetchAll();
+        $statement = new Statement($this->db);
+        $statement->prepare($SQL);
+        $statement->bind($params);
+        $query = $statement->fetchAll();
 
         foreach ( $query as $row )
-            $this->lists[] = $this->set($row);
+            $this->collection[] = $this->set($row);
 
         return $this;
     }
 
-    public function add(AppList $list) : AppList
+    public function add(AppList $list) : int
     {
         $SQL = "INSERT INTO app_lists (list_name, user_id) VALUES (:list_name, :user_id)";
 
@@ -114,9 +117,9 @@ class ListRepository
             ]
         )->execute();
 
-        if ( !$query ) return new AppList; // or something.
+        if ( !$query ) return false;
 
-        return $this->find($statement->getLastInsertId());
+        return $statement->getLastInsertId();
     }
 
 }

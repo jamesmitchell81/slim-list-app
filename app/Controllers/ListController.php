@@ -34,14 +34,12 @@ class ListController
 		$users = new UserRepository($this->db);
 		$user = $users->find($user_id);
 
-		$lists = (new ListRepository($this->db))
-                    ->findByUser($user_id)
-                    ->all();
-
-		$user->setLists($lists);
+		$repo = new ListRepository($this->db);
+		$repo->findByUser($user_id);
+		$lists = $repo->sort(['createdTimestamp'])->asc();
 
 		$args['user'] = $user;
-		$args['name'] = "James";
+		$args['lists'] = $lists;
 
 		return $this->view->render($response, 'lists.html.twig', $args);
 	}
@@ -56,11 +54,11 @@ class ListController
 
 		$list = new AppList();
 		$list->setUser($user);
-		$list->setListName($body['list_name']);
+		$list->setListName($body['list-name']);
 
 		$lists = new ListRepository($this->db);
-		$list = $lists->add($list);
+		$list_id = $lists->add($list);
 
-		return $response->withRedirect('/lists/' . $list->getId());
+		return $response->withRedirect('/lists/' . $list_id);
 	}
 }

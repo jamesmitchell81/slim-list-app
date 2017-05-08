@@ -1,0 +1,44 @@
+{% extends "base.html.twig" %}
+
+{% block content %}
+<div class="main-list-left column">
+    <form action="/lists" method="POST" class="list-form">
+        <!-- CSRF field -->
+        <input type="text" class="list-input" name="list-name" id="list-name">
+    </form>
+    {% if lists|length == 0 %}
+        <span class="empty-lists">There are no lists.</span>
+    {% else %}
+        {% for userList in lists %}
+        <div class="list-element {{ userList.getId() == list.getId() ? 'list-current' : '' }}">
+            <span class="list-details">
+                <span class="list-name">{{ userList.getListName() }}</span>
+                <span class="list-created">Created: {{ userList.getCreated() }}</span>
+                <span class="list-updated">Updated: {{ userList.getUpdated() }}</span>
+            </span>
+            <a href="/lists/{{ userList.getId() }}" class="btn show-list-btn">&vellip;</a>
+        </div>
+        {% endfor %}
+    {% endif %}
+</div>
+<div class="list-items-right column">
+    <form action="/lists/{{ list.getId() }}" method="POST" class="list-item-form">
+        <!-- CSRF field -->
+        <input type="text" class="list-input" name="item-value" id="item-value" autofocus autocomplete="off">
+    </form>
+    {% if items|length == 0 %}
+        <span class='list-empty'>No Items yet. Add an Item.</span>
+    {% else %}
+        {% for item in items %}
+        <div class="list-element">
+            <span class="list-details">
+                <span class="list-name">{{ item.getValue() }}</span>
+                <span class="list-created">Created: {{ item.getCreated() }}</span>
+                <span class="list-updated">Updated: {{ item.getUpdated() }}</span>
+            </span>
+            <a href="/lists/{{ list.getId() }}/items/{{ item.getId() }}" class="btn show-list-btn">&vellip;</a>
+        </div>
+        {% endfor %}
+    {% endif %}
+</div>
+{% endblock %}

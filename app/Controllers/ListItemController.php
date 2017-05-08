@@ -37,36 +37,24 @@ class ListItemController
 		$user_id = $_SESSION['user_id'];
 		$list_id = $request->getAttribute('list_id');
 
-       // $list = (new ListRepository($this->db))->findBy(
-       //     [
-       //         'id' => $list_id,
-       //         'user_id' => $user_id
-       //     ]
-       // )->first();
-
         // get all lists.
         $repo = new ListRepository($this->db);
-        $lists = $repo->findByUser($user_id)->all();
-        var_dump($list_id, $lists);
-        exit();
+        $repo->findByUser($user_id);
 
-        // order by created timestamp desc
-        // $lists = $repo->sort('field')->desc();
-        // $lists = $repo->sort('field')->asc();
-
-        // $lists = $repo->sort('-field');
-        // $lists = $repo->sort('+field');
-
-        // filter the current list.
+        $lists = $repo->sort(['createdTimestamp'])->asc();
         $list = $repo->filter('id', $list_id)[0];
 
-        $items = (new ListItemRepository($this->db))->findByList($list->getId())->all();
+        $items = (new ListItemRepository($this->db))
+                    ->findByList($list->getId())
+                    ->sort(['createdTimestamp'])
+                    ->asc();
 		$list->setItems($items);
 
 		$args['list'] = $list;
         $args['lists'] = $lists;
+        $args['items'] = $items;
 
-		return $this->view->render($response, 'lists.html.twig', $args);
+		return $this->view->render($response, 'lists-items.html.twig', $args);
 	}
 
     /**
@@ -81,14 +69,16 @@ class ListItemController
 
 		$body = $request->getParsedBody();
 		// TODO: VALIDATE NEW ITEM BODY!
-		$value = $body['new-item'];
+		$value = $body['item-value'];
 
-		$list = (new ListRepository($this->db))->findBy(
+		$lists = (new ListRepository($this->db))->findBy(
 		    [
-		        'id' => $list_id,
-                'user_id' => $user_id
+		        'id' => (int)$list_id,
+                'user_id' => (int)$user_id
             ]
-        )->first();
+        );
+
+        $list = $lists->first();
 
         $item = new ListItem();
         $item->setValue($value);
@@ -97,7 +87,7 @@ class ListItemController
         $items = new ListItemRepository($this->db);
         $items->add($item);
 
-		return $response->withRedirect('/list/' . $list->getId());
+		return $response->withRedirect('/lists/' . $list->getId());
 	}
 
     /**
@@ -106,12 +96,12 @@ class ListItemController
      * @param $args
      * @return Response
      */
-    public function displayEdit(Request $request, Response $response, $args)
+    public function item(Request $request, Response $response, $args)
 	{
 		$item_id = $request->getAttribute('item_id');
         $args['item'] = (new ListItemRepository($this->db))->find($item_id);
 
-		return $this->view->render($response, 'list-item-edit.phtml', $args);
+		return $this->view->render($response, 'list-item-edit.html.twig', $args);
 	}
 
     /**
